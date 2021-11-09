@@ -2,4 +2,6 @@ matplotlib
 opencv-python==4.2.0.32
 Pillow
 scipy
-tensorflow==1.15
+tensorflow
+tf_slim
+numpy
