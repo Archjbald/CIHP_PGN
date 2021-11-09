@@ -1,0 +1,2 @@
+/images/assis_front.jpg /labels/dummy.png
+/images/assis_side.jpg /labels/dummy.png

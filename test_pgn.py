@@ -9,10 +9,12 @@ import scipy.io as sio
 import cv2
 from glob import glob
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 from utils import *
+
 
 N_CLASSES = 20
 DATA_DIR = './datasets/CIHP'
