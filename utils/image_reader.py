@@ -16,15 +16,14 @@ def image_scaling(img, label, edge):
       label: Segmentation mask to scale.
     """
 
-    uni = tf.compat.v1.random_uniform_initializer(minval=0.5, maxval=2.0, dtype=tf.float32, seed=None)
-    scale = tf.Variable(uni([1]))
-    h_new = tf.cast(tf.multiply(tf.cast(tf.shape(img)[0], tf.float32), scale), tf.int32)
-    w_new = tf.cast(tf.multiply(tf.cast(tf.shape(img)[1], tf.float32), scale), tf.int32)
+    scale = tf.random_uniform([1], minval=0.5, maxval=2.0, dtype=tf.float32, seed=None)
+    h_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[0]), scale))
+    w_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[1]), scale))
     new_shape = tf.squeeze(tf.stack([h_new, w_new]), squeeze_dims=[1])
-    img = tf.compat.v1.image.resize(img, new_shape)
-    label = tf.compat.v1.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
+    img = tf.image.resize_images(img, new_shape)
+    label = tf.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
     label = tf.squeeze(label, squeeze_dims=[0])
-    edge = tf.compat.v1.image.resize_nearest_neighbor(tf.expand_dims(edge, 0), new_shape)
+    edge = tf.image.resize_nearest_neighbor(tf.expand_dims(edge, 0), new_shape)
     edge = tf.squeeze(edge, squeeze_dims=[0])
 
     return img, label, edge
@@ -37,8 +36,8 @@ def image_mirroring(img, label, edge):
       img: Training image to mirror.
       label: Segmentation mask to mirror.
     """
-    uni = tf.compat.v1.random_uniform_initializer(0, 1.0, dtype=tf.float32)
-    distort_left_right_random = tf.Variable(uni([1]))[0]
+
+    distort_left_right_random = tf.random_uniform([1], 0, 1.0, dtype=tf.float32)[0]
     mirror = tf.less(tf.stack([1.0, distort_left_right_random, 1.0]), 0.5)
     mirror = tf.boolean_mask([0, 1, 2], mirror)
     img = tf.reverse(img, mirror)
@@ -48,22 +47,21 @@ def image_mirroring(img, label, edge):
 
 
 def random_resize_img_labels(image, label, resized_h, resized_w):
-    uni = tf.compat.v1.random_uniform_initializer(minval=0.75, maxval=1.25, dtype=tf.float32, seed=None)
-    scale = tf.Variable(uni([1]))
-    h_new = tf.cast(tf.multiply(tf.cast(resized_h, tf.float32), scale), tf.int32)
-    w_new = tf.cast(tf.multiply(tf.cast(resized_w, tf.float32), scale), tf.int32)
+    scale = tf.random_uniform([1], minval=0.75, maxval=1.25, dtype=tf.float32, seed=None)
+    h_new = tf.to_int32(tf.multiply(tf.to_float(resized_h), scale))
+    w_new = tf.to_int32(tf.multiply(tf.to_float(resized_w), scale))
 
     new_shape = tf.squeeze(tf.stack([h_new, w_new]), squeeze_dims=[1])
-    img = tf.compat.v1.image.resize(image, new_shape)
-    label = tf.compat.v1.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
+    img = tf.image.resize_images(image, new_shape)
+    label = tf.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
     label = tf.squeeze(label, squeeze_dims=[0])
     return img, label
 
 
 def resize_img_labels(image, label, resized_h, resized_w):
-    new_shape = tf.stack([tf.cast(resized_h, tf.int32), tf.cast(resized_w, tf.int32)])
-    img = tf.compat.v1.image.resize(image, new_shape)
-    label = tf.compat.v1.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
+    new_shape = tf.stack([tf.to_int32(resized_h), tf.to_int32(resized_w)])
+    img = tf.image.resize_images(image, new_shape)
+    label = tf.image.resize_nearest_neighbor(tf.expand_dims(label, 0), new_shape)
     label = tf.squeeze(label, squeeze_dims=[0])
     return img, label
 
@@ -91,7 +89,7 @@ def random_crop_and_pad_image_and_labels(image, label, edge, crop_h, crop_w, ign
 
     last_image_dim = tf.shape(image)[-1]
     last_label_dim = tf.shape(label)[-1]
-    combined_crop = tf.image.random_crop(combined_pad, [crop_h, crop_w, 4 + 1])
+    combined_crop = tf.random_crop(combined_pad, [crop_h, crop_w, 4 + 1])
     img_crop = combined_crop[:, :, :last_image_dim]
     label_crop = combined_crop[:, :, last_image_dim:last_image_dim + last_label_dim]
     edge_crop = combined_crop[:, :, last_image_dim + last_label_dim:]
@@ -181,9 +179,9 @@ def read_images_from_disk(input_queue, input_size, random_scale,
       Two tensors: the decoded image and its mask.
     """
 
-    img_contents = tf.io.read_file(input_queue[0])
-    label_contents = tf.io.read_file(input_queue[1])
-    edge_contents = tf.io.read_file(input_queue[2])
+    img_contents = tf.read_file(input_queue[0])
+    label_contents = tf.read_file(input_queue[1])
+    edge_contents = tf.read_file(input_queue[2])
 
     img = tf.image.decode_jpeg(img_contents, channels=3)
     img_r, img_g, img_b = tf.split(value=img, num_or_size_splits=3, axis=2)
@@ -239,7 +237,7 @@ class ImageReader(object):
         self.images = tf.convert_to_tensor(self.image_list, dtype=tf.string)
         self.labels = tf.convert_to_tensor(self.label_list, dtype=tf.string)
         self.edges = tf.convert_to_tensor(self.edge_list, dtype=tf.string)
-        self.queue = tf.compat.v1.train.slice_input_producer([self.images, self.labels, self.edges], shuffle=shuffle)
+        self.queue = tf.train.slice_input_producer([self.images, self.labels, self.edges], shuffle=shuffle)
         self.image, self.label, self.edge = read_images_from_disk(self.queue, self.input_size, random_scale,
                                                                   random_mirror)
 
@@ -252,5 +250,5 @@ class ImageReader(object):
         Returns:
           Two tensors of size (batch_size, h, w, {3, 1}) for images and masks.'''
         batch_list = [self.image, self.label, self.edge]
-        image_batch, label_batch, edge_batch = tf.compat.v1.train.batch([self.image, self.label, self.edge], num_elements)
+        image_batch, label_batch, edge_batch = tf.train.batch([self.image, self.label, self.edge], num_elements)
         return image_batch, label_batch, edge_batch

@@ -38,30 +38,30 @@ def main():
     image_batch = tf.stack([image, image_rev])
     label_batch = tf.expand_dims(label, dim=0)  # Add one batch dimension.
     edge_gt_batch = tf.expand_dims(edge_gt, dim=0)
-    h_orig, w_orig = tf.cast(tf.shape(image_batch)[1], tf.float32), tf.cast(tf.shape(image_batch)[2], tf.float32)
-    image_batch050 = tf.compat.v1.image.resize(image_batch, tf.stack(
-        [tf.cast(tf.multiply(h_orig, 0.50), tf.int32), tf.cast(tf.multiply(w_orig, 0.50), tf.int32)]))
-    image_batch075 = tf.compat.v1.image.resize(image_batch, tf.stack(
-        [tf.cast(tf.multiply(h_orig, 0.75), tf.int32), tf.cast(tf.multiply(w_orig, 0.75), tf.int32)]))
-    image_batch125 = tf.compat.v1.image.resize(image_batch, tf.stack(
-        [tf.cast(tf.multiply(h_orig, 1.25), tf.int32), tf.cast(tf.multiply(w_orig, 1.25), tf.int32)]))
-    image_batch150 = tf.compat.v1.image.resize(image_batch, tf.stack(
-        [tf.cast(tf.multiply(h_orig, 1.50), tf.int32), tf.cast(tf.multiply(w_orig, 1.50), tf.int32)]))
-    image_batch175 = tf.compat.v1.image.resize(image_batch, tf.stack(
-        [tf.cast(tf.multiply(h_orig, 1.75), tf.int32), tf.cast(tf.multiply(w_orig, 1.75), tf.int32)]))
+    h_orig, w_orig = tf.to_float(tf.shape(image_batch)[1]), tf.to_float(tf.shape(image_batch)[2])
+    image_batch050 = tf.image.resize_images(image_batch, tf.stack(
+        [tf.to_int32(tf.multiply(h_orig, 0.50)), tf.to_int32(tf.multiply(w_orig, 0.50))]))
+    image_batch075 = tf.image.resize_images(image_batch, tf.stack(
+        [tf.to_int32(tf.multiply(h_orig, 0.75)), tf.to_int32(tf.multiply(w_orig, 0.75))]))
+    image_batch125 = tf.image.resize_images(image_batch, tf.stack(
+        [tf.to_int32(tf.multiply(h_orig, 1.25)), tf.to_int32(tf.multiply(w_orig, 1.25))]))
+    image_batch150 = tf.image.resize_images(image_batch, tf.stack(
+        [tf.to_int32(tf.multiply(h_orig, 1.50)), tf.to_int32(tf.multiply(w_orig, 1.50))]))
+    image_batch175 = tf.image.resize_images(image_batch, tf.stack(
+        [tf.to_int32(tf.multiply(h_orig, 1.75)), tf.to_int32(tf.multiply(w_orig, 1.75))]))
 
     # Create network.
-    with tf.compat.v1.variable_scope('', reuse=False):
+    with tf.variable_scope('', reuse=False):
         net_100 = PGNModel({'data': image_batch}, is_training=False, n_classes=N_CLASSES)
-    with tf.compat.v1.variable_scope('', reuse=True):
+    with tf.variable_scope('', reuse=True):
         net_050 = PGNModel({'data': image_batch050}, is_training=False, n_classes=N_CLASSES)
-    with tf.compat.v1.variable_scope('', reuse=True):
+    with tf.variable_scope('', reuse=True):
         net_075 = PGNModel({'data': image_batch075}, is_training=False, n_classes=N_CLASSES)
-    with tf.compat.v1.variable_scope('', reuse=True):
+    with tf.variable_scope('', reuse=True):
         net_125 = PGNModel({'data': image_batch125}, is_training=False, n_classes=N_CLASSES)
-    with tf.compat.v1.variable_scope('', reuse=True):
+    with tf.variable_scope('', reuse=True):
         net_150 = PGNModel({'data': image_batch150}, is_training=False, n_classes=N_CLASSES)
-    with tf.compat.v1.variable_scope('', reuse=True):
+    with tf.variable_scope('', reuse=True):
         net_175 = PGNModel({'data': image_batch175}, is_training=False, n_classes=N_CLASSES)
     # parsing net
 
@@ -86,26 +86,26 @@ def main():
     edge_out2_175 = net_175.layers['edge_rf_fc']
 
     # combine resize
-    parsing_out1 = tf.reduce_mean(tf.stack([tf.compat.v1.image.resize(parsing_out1_050, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out1_075, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out1_100, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out1_125, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out1_150, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out1_175, tf.shape(image_batch)[1:3, ])]),
+    parsing_out1 = tf.reduce_mean(tf.stack([tf.image.resize_images(parsing_out1_050, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out1_075, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out1_100, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out1_125, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out1_150, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out1_175, tf.shape(image_batch)[1:3, ])]),
                                   axis=0)
 
-    parsing_out2 = tf.reduce_mean(tf.stack([tf.compat.v1.image.resize(parsing_out2_050, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out2_075, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out2_100, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out2_125, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out2_150, tf.shape(image_batch)[1:3, ]),
-                                            tf.compat.v1.image.resize(parsing_out2_175, tf.shape(image_batch)[1:3, ])]),
+    parsing_out2 = tf.reduce_mean(tf.stack([tf.image.resize_images(parsing_out2_050, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out2_075, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out2_100, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out2_125, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out2_150, tf.shape(image_batch)[1:3, ]),
+                                            tf.image.resize_images(parsing_out2_175, tf.shape(image_batch)[1:3, ])]),
                                   axis=0)
 
-    edge_out2_100 = tf.compat.v1.image.resize(edge_out2_100, tf.shape(image_batch)[1:3, ])
-    edge_out2_125 = tf.compat.v1.image.resize(edge_out2_125, tf.shape(image_batch)[1:3, ])
-    edge_out2_150 = tf.compat.v1.image.resize(edge_out2_150, tf.shape(image_batch)[1:3, ])
-    edge_out2_175 = tf.compat.v1.image.resize(edge_out2_175, tf.shape(image_batch)[1:3, ])
+    edge_out2_100 = tf.image.resize_images(edge_out2_100, tf.shape(image_batch)[1:3, ])
+    edge_out2_125 = tf.image.resize_images(edge_out2_125, tf.shape(image_batch)[1:3, ])
+    edge_out2_150 = tf.image.resize_images(edge_out2_150, tf.shape(image_batch)[1:3, ])
+    edge_out2_175 = tf.image.resize_images(edge_out2_175, tf.shape(image_batch)[1:3, ])
     edge_out2 = tf.reduce_mean(tf.stack([edge_out2_100, edge_out2_125, edge_out2_150, edge_out2_175]), axis=0)
 
     raw_output = tf.reduce_mean(tf.stack([parsing_out1, parsing_out2]), axis=0)
@@ -142,28 +142,28 @@ def main():
     gt = tf.reshape(label_batch, [-1, ])
     weights = tf.cast(tf.less_equal(gt, N_CLASSES - 1),
                       tf.int32)  # Ignoring all labels greater than or equal to n_classes.
-    mIoU, update_op_iou = tf.compat.v1.metrics.mean_iou(gt, preds, num_classes=N_CLASSES, weights=weights)
-    macc, update_op_acc = tf.compat.v1.metrics.accuracy(gt, preds, weights=weights)
+    mIoU, update_op_iou = tf.contrib.metrics.streaming_mean_iou(preds, gt, num_classes=N_CLASSES, weights=weights)
+    macc, update_op_acc = tf.contrib.metrics.streaming_accuracy(preds, gt, weights=weights)
 
     # precision and recall
-    recall, update_op_recall = tf.compat.v1.metrics.recall(edge_gt_batch, res_edge)
-    precision, update_op_precision = tf.compat.v1.metrics.precision(edge_gt_batch, res_edge)
+    recall, update_op_recall = tf.contrib.metrics.streaming_recall(res_edge, edge_gt_batch)
+    precision, update_op_precision = tf.contrib.metrics.streaming_precision(res_edge, edge_gt_batch)
 
     update_op = tf.group(update_op_iou, update_op_acc, update_op_recall, update_op_precision)
 
     # Which variables to load.
-    restore_var = tf.compat.v1.global_variables()
+    restore_var = tf.global_variables()
     # Set up tf session and initialize variables. 
-    config = tf.compat.v1.ConfigProto()
+    config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    sess = tf.compat.v1.Session(config=config)
-    init = tf.compat.v1.global_variables_initializer()
+    sess = tf.Session(config=config)
+    init = tf.global_variables_initializer()
 
     sess.run(init)
-    sess.run(tf.compat.v1.local_variables_initializer())
+    sess.run(tf.local_variables_initializer())
 
     # Load weights.
-    loader = tf.compat.v1.train.Saver(var_list=restore_var)
+    loader = tf.train.Saver(var_list=restore_var)
     if RESTORE_FROM is not None:
         if load(loader, sess, RESTORE_FROM):
             print(" [*] Load SUCCESS")
@@ -171,7 +171,7 @@ def main():
             print(" [!] Load failed...")
 
     # Start queue threads.
-    threads = tf.compat.v1.train.start_queue_runners(coord=coord, sess=sess)
+    threads = tf.train.start_queue_runners(coord=coord, sess=sess)
 
     # evaluate prosessing
     parsing_dir = './output/cihp_parsing_maps'
@@ -212,3 +212,4 @@ def main():
 if __name__ == '__main__':
     main()
 
+##############################################################333
