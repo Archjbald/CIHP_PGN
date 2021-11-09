@@ -16,10 +16,12 @@ from PIL import Image
 from utils import *
 
 
+# DATASET = 'CIHP'
+DATASET = 'test'
 N_CLASSES = 20
-DATA_DIR = './datasets/CIHP'
-LIST_PATH = './datasets/CIHP/list/val.txt'
-DATA_ID_LIST = './datasets/CIHP/list/val_id.txt'
+DATA_DIR = f'./datasets/{DATASET}'
+LIST_PATH = f'./datasets/{DATASET}/list/val.txt'
+DATA_ID_LIST = f'./datasets/{DATASET}/list/val_id.txt'
 with open(DATA_ID_LIST, 'r') as f:
     NUM_STEPS = len(f.readlines())
 RESTORE_FROM = './checkpoint/CIHP_pgn'
