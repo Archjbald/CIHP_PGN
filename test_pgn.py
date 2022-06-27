@@ -178,10 +178,11 @@ def main():
     threads = tf.train.start_queue_runners(coord=coord, sess=sess)
 
     # evaluate prosessing
-    parsing_dir = './output/cihp_parsing_maps'
+    root_dir = os.path.join('./output', DATASET)
+    parsing_dir = os.path.join(root_dir, 'parsing_maps')
     if not os.path.exists(parsing_dir):
         os.makedirs(parsing_dir)
-    edge_dir = './output/cihp_edge_maps'
+    edge_dir = os.path.join(root_dir, 'edge_maps')
     if not os.path.exists(edge_dir):
         os.makedirs(edge_dir)
     # Iterate over training steps.
