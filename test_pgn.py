@@ -17,7 +17,7 @@ from utils import *
 
 
 # DATASET = 'CIHP'
-DATASET = 'test'
+DATASET = sys.argv[1]
 N_CLASSES = 20
 DATA_DIR = f'./datasets/{DATASET}'
 LIST_PATH = f'./datasets/{DATASET}/list/val.txt'
