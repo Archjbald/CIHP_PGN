@@ -34,10 +34,10 @@ def prepare_data(image_source, dataset_name):
     for i, img in enumerate(img_list):
         if not i % tenth:
             print(i // tenth * 10, '%')
-        img_name = os.path.split(img)[-1]
+        img_name = os.path.splitext(os.path.split(img)[-1])[-2]
         image = imread(img)
         imsave(
-            os.path.join(dataset_root, 'edges', img_name),
+            os.path.join(dataset_root, 'edges', f'{img_name}.png'),
             np.zeros_like(image),
             check_contrast=False
         )
