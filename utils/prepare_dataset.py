@@ -56,9 +56,10 @@ def prepare_data(image_source, dataset_name):
     val_file = open(os.path.join(dataset_root, 'list', 'val.txt'), 'w')
     id_file = open(os.path.join(dataset_root, 'list', 'val_id.txt'), 'w')
     for img in img_list:
-        img_name = os.path.splitext(img)[0]
+        img_file = os.path.split(img)[-1]
+        img_name = os.path.splitext(img_file)[0]
         id_file.write(f'{img_name}\n')
-        val_file.write(f'/images/{img} /labels/dummy.png\n')
+        val_file.write(f'/images/{img_file} /labels/dummy.png\n')
         if DEBUG:
             break
 
