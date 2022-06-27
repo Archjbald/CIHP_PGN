@@ -197,17 +197,18 @@ def main():
         parsing_im = Image.fromarray(msk[0])
         parsing_im.save('{}/{}_vis.png'.format(parsing_dir, img_id))
         cv2.imwrite('{}/{}.png'.format(parsing_dir, img_id), parsing_[0, :, :, 0])
-        sio.savemat('{}/{}.mat'.format(parsing_dir, img_id), {'data': scores[0, :, :]})
+        # sio.savemat('{}/{}.mat'.format(parsing_dir, img_id), {'data': scores[0, :, :]})
 
-        cv2.imwrite('{}/{}.png'.format(edge_dir, img_id), edge_[0, :, :, 0] * 255)
+        # cv2.imwrite('{}/{}.png'.format(edge_dir, img_id), edge_[0, :, :, 0] * 255)
 
-    res_mIou = mIoU.eval(session=sess)
-    res_macc = macc.eval(session=sess)
-    res_recall = recall.eval(session=sess)
-    res_precision = precision.eval(session=sess)
-    f1 = 2 * res_precision * res_recall / (res_precision + res_recall)
-    print('Mean IoU: {:.4f}, Mean Acc: {:.4f}'.format(res_mIou, res_macc))
-    print('Recall: {:.4f}, Precision: {:.4f}, F1 score: {:.4f}'.format(res_recall, res_precision, f1))
+    if False:
+        res_mIou = mIoU.eval(session=sess)
+        res_macc = macc.eval(session=sess)
+        res_recall = recall.eval(session=sess)
+        res_precision = precision.eval(session=sess)
+        f1 = 2 * res_precision * res_recall / (res_precision + res_recall)
+        print('Mean IoU: {:.4f}, Mean Acc: {:.4f}'.format(res_mIou, res_macc))
+        print('Recall: {:.4f}, Precision: {:.4f}, F1 score: {:.4f}'.format(res_recall, res_precision, f1))
 
     coord.request_stop()
     coord.join(threads)
