@@ -30,7 +30,10 @@ def prepare_data(image_source, dataset_name):
         os.mkdir(os.path.join(dataset_root, fold))
 
     img_list = glob.glob(os.path.join(image_source, '*'))
+    tenth = len(img_list) // 10
     for i, img in enumerate(img_list):
+        if not i % tenth:
+            print(i // tenth * 10, '%')
         img_name = os.path.split(img)[-1]
         image = imread(img)
         imsave(
@@ -46,6 +49,8 @@ def prepare_data(image_source, dataset_name):
             )
         if DEBUG:
             break
+
+    print('100 %')
 
     # Create lists
     val_file = open(os.path.join(dataset_root, 'list', 'val.txt'), 'w')
