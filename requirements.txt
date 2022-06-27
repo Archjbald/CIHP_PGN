@@ -4,3 +4,4 @@ Pillow
 scipy
 tensorflow==1.15
 numpy
+scikit-image
